@@ -4,6 +4,7 @@ from client.mixin.InitHandler import InitHandler
 from core.handlers.Handler import HandlerChain
 from core.handlers.ModelTrainHandler import ClientTrainHandler, ClientPostTrainHandler
 from client.mixin.DataStore import DataStore
+import torch
 
 
 class NormalClient(Client):
@@ -92,13 +93,48 @@ class NormalClient(Client):
         self.update_dict["client_id"] = self.client_id
         self.update_dict["time_stamp"] = self.time_stamp
 
-        # 🔥 Malicious injection happens AFTER weights are inserted by handlers
-        if self.client_id == 0 and "weights" in self.update_dict:
-            print("⚠ Malicious client 0 activated — corrupting weights!")
-            corrupted_weights = {}
+        for k, v in kwargs.items():
+            self.upload_item(k, v)
+
+        # ==============================
+        # 🔐 Differential Privacy Layer
+        # ==============================
+
+        sigma = self.config.get("dp_sigma", 0.0)
+        clip_value = self.config.get("dp_clip", None)
+
+        if sigma > 0 and "weights" in self.update_dict:
             for key in self.update_dict["weights"]:
-                corrupted_weights[key] = self.update_dict["weights"][key] * 10
-            self.update_dict["weights"] = corrupted_weights
+                tensor = self.update_dict["weights"][key]
+
+                # L2 norm clipping
+                if clip_value is not None:
+                    norm = torch.norm(tensor)
+                    if norm > clip_value:
+                        tensor = tensor * (clip_value / norm)
+
+                # Gaussian noise injection
+                noise = torch.normal(
+                    mean=0.0,
+                    std=sigma,
+                    size=tensor.shape,
+                    device=tensor.device
+                )
+
+                tensor = tensor + noise
+                self.update_dict["weights"][key] = tensor
+
+        # ====================================
+        # 🚨 Malicious Simulation (Testing)
+        # ====================================
+
+        if self.client_id == 0:
+            if "weights" in self.update_dict:
+                print("🚨 Malicious client 0 activated — heavily corrupting weights!")
+                corrupted = {}
+                for key in self.update_dict["weights"]:
+                    corrupted[key] = self.update_dict["weights"][key] * 100
+                self.update_dict["weights"] = corrupted
 
         self.customize_upload()
         self.message_queue.put_into_uplink(self.update_dict)
