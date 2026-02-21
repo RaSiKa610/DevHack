@@ -207,3 +207,13 @@ email: desperado@qq.com
 Welcome to provide suggestions for the project~
 
 if you'd like contribute to this project, please contact us.
+
+
+## Acknowledgement
+
+This project builds upon the open-source FedModule framework (MIT License).
+We extended it with:
+- Robust Median Aggregation
+- Malicious Client Simulation
+- Stability Evaluation
+- Async Robust Training Pipeline
