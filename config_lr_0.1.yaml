@@ -1,0 +1,85 @@
+wandb:
+  enabled: false
+  project: FedAsync
+  name: lr_0.1
+global:
+  use_file_system: false
+  multi_gpu: true
+  experiment: FedAsync/lr_0.1
+  stale:
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 8
+  - 8
+  - 8
+  - 8
+  - 8
+  - 8
+  - 8
+  - 8
+  - 8
+  - 8
+  - 16
+  - 16
+  - 16
+  - 16
+  - 16
+  dataset:
+    path: src.dataset.MNIST
+    params: {}
+  iid: false
+  client_num: 20
+server:
+  path: src.server.NormalServer.NormalServer
+  epochs: 300
+  model:
+    path: src.model.LeNet5.LeNet5
+    params: {}
+  scheduler:
+    path: src.scheduler.AsyncScheduler.AsyncScheduler
+    schedule_interval: 8
+    schedule_delay: 20
+    schedule:
+      path: src.schedule.RandomSchedule.RandomSchedule
+      params:
+        c_ratio: 0.4
+  updater:
+    path: src.updater.AsyncUpdater.AsyncUpdater
+    num_generator: 1
+    loss: torch.nn.functional.cross_entropy
+    update:
+      path: src.update.FedAsync.FedAsync
+      params:
+        a: 10
+        b: 8
+        alpha: 0.9
+        r: 1
+queue_manager:
+  path: src.queuemanager.SingleQueueManager.SingleQueueManager
+  receiver:
+    path: src.receiver.NormalReceiver.NormalReceiver
+    params: {}
+  checker:
+    path: src.checker.AllChecker.AllChecker
+    params: {}
+client_manager:
+  path: src.clientmanager.NormalClientManager.NormalClientManager
+client:
+  path: src.client.NormalClient.NormalClient
+  epochs: 2
+  batch_size: 64
+  test_size: 0.1
+  test_batch_size: 16
+  model:
+    path: src.model.LeNet5.LeNet5
+    params: {}
+  loss: torch.nn.functional.cross_entropy
+  mu: 0
+  optimizer:
+    path: torch.optim.SGD
+    params:
+      lr: 0.1
+      weight_decay: 0

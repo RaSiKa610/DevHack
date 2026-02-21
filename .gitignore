@@ -1,0 +1,61 @@
+# ==============================
+# OS Files
+# ==============================
+.DS_Store
+*/.DS_Store
+Thumbs.db
+
+# ==============================
+# IDE / Editor
+# ==============================
+.idea/
+.vscode/
+
+# ==============================
+# Python
+# ==============================
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+*.egg
+
+# ==============================
+# Virtual Environment
+# ==============================
+venv/
+env/
+ENV/
+
+# ==============================
+# Dataset & Results
+# ==============================
+src/results/*
+!src/results/.gitkeep
+
+src/data/*
+!src/data/.gitkeep
+
+results/
+data/
+
+# ==============================
+# WandB Logs
+# ==============================
+wandb/
+src/fl/wandb/*
+
+# ==============================
+# Test & Experimental Configs
+# ==============================
+config_test*.json
+config_sync_test.json
+config_semi_test.json
+
+# ==============================
+# Misc
+# ==============================
+src/test/*
+src/other/
+src/lib/
